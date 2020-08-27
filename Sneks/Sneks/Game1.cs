@@ -20,14 +20,20 @@ namespace Sneks {
         protected override void Initialize() {
             // TODO: Add your initialization logic here
 
-            _graphics.PreferredBackBufferWidth = 1024;
-            _graphics.PreferredBackBufferHeight = 512;
+            windowSize = new Vector2(1024, 512);
+
+            _graphics.PreferredBackBufferWidth = (int)windowSize.X;
+            _graphics.PreferredBackBufferHeight = (int)windowSize.Y;
             _graphics.ApplyChanges();
+
+            // Empty constructor for standard camera pos
+            camera = new Camera();
 
             block = new Rectangle(new Vector2(3, 3));
             block.createTexture(_graphics.GraphicsDevice, pixel=> Color.Green);
 
-            mapGenerator = new MapGenerator(new Vector2(1024, 512));
+            mapSize = new Vector2(1500, 512);
+            mapGenerator = new MapGenerator(mapSize);
             map = mapGenerator.generateTerrain();
 
             entities = new Dictionary<Guid, Entity>();
@@ -69,18 +75,13 @@ namespace Sneks {
 
             int mapIterator = map.Length / 256;
 
-            for (int y = 0; y < 512; y++) {              
-                for (int x = 0; x < 1024; x++) {
-                    switch (map[mapIterator]) {
+            for (int y = 0; y < (int)windowSize.Y; y++) {              
+                for (int x = 0; x < (int)windowSize.X; x++) {
+                    switch (map[(y + (int)camera.position.Y) * (int)mapSize.X + (x + (int)camera.position.X)]) {
                         case 1: 
                             _spriteBatch.Draw(block.texture, new Vector2(x, y), Color.White);
                             break;
-                    }
-                    if(mapIterator < map.Length - 1) {
-                        mapIterator++;
-                    } else {
-                        break;
-                    }
+                    }                  
                 }
             }
 
@@ -89,10 +90,13 @@ namespace Sneks {
             base.Draw(gameTime);
         }
 
+        private Camera camera;
         private Snek snek;
         private Dictionary<Guid, Entity> entities;
         private MapGenerator mapGenerator;
         private int[] map;
+        private Vector2 mapSize;
         private Rectangle block;
+        private Vector2 windowSize;
     }
 }
