@@ -6,8 +6,8 @@ using System.Linq;
 using System.Text;
 
 namespace Sneks {
-    class Rectangle : Shape {
-        public Rectangle(Vector2 size) {
+    class Block : Shape {
+        public Block(Vector2 size) {
             this.size = size;
         }
         public override void createTexture(GraphicsDevice graphics, Func<int, Color> paint) {
