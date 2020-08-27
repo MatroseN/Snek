@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Sneks {
     public class Game1 : Game {
@@ -26,15 +27,15 @@ namespace Sneks {
             _graphics.PreferredBackBufferHeight = (int)windowSize.Y;
             _graphics.ApplyChanges();
 
-            // Empty constructor for standard camera pos
-            camera = new Camera();
-
-            block = new Rectangle(new Vector2(3, 3));
+            block = new Block(new Vector2(3, 3));
             block.createTexture(_graphics.GraphicsDevice, pixel=> Color.Green);
 
-            mapSize = new Vector2(1500, 512);
+            mapSize = new Vector2(1000, 900);
             mapGenerator = new MapGenerator(mapSize);
             map = mapGenerator.generateTerrain();
+
+            camera = new Camera(windowSize, mapSize);
+
 
             entities = new Dictionary<Guid, Entity>();
 
@@ -56,6 +57,8 @@ namespace Sneks {
 
             // TODO: Add your update logic here
 
+            camera.update(gameTime);
+
             foreach (Entity entity in entities.Values) {
                 entity.update(gameTime);
             }
@@ -73,15 +76,14 @@ namespace Sneks {
                // _spriteBatch.Draw(entity.texture, entity.position, Color.White);
             }
 
-            int mapIterator = map.Length / 256;
-
             for (int y = 0; y < (int)windowSize.Y; y++) {              
                 for (int x = 0; x < (int)windowSize.X; x++) {
-                    switch (map[(y + (int)camera.position.Y) * (int)mapSize.X + (x + (int)camera.position.X)]) {
-                        case 1: 
+                    int blockPos = (y + (int)camera.y) * (int)mapSize.X + (x + (int)camera.x);
+                    switch (map[blockPos]) {
+                        case 1:
                             _spriteBatch.Draw(block.texture, new Vector2(x, y), Color.White);
                             break;
-                    }                  
+                    }
                 }
             }
 
@@ -96,7 +98,7 @@ namespace Sneks {
         private MapGenerator mapGenerator;
         private int[] map;
         private Vector2 mapSize;
-        private Rectangle block;
+        private Block block;
         private Vector2 windowSize;
     }
 }
