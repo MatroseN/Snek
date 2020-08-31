@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace Sneks {
     public class Game1 : Game {
@@ -14,25 +13,26 @@ namespace Sneks {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-            _graphics.PreferredBackBufferWidth = 1024;
-            _graphics.PreferredBackBufferHeight = 512;
+            _graphics.IsFullScreen = true;
         }
 
         protected override void Initialize() {
             // TODO: Add your initialization logic here
 
-            windowSize = new Vector2(1024, 512);
+            windowSize = new Vector2(800, 600);
 
             _graphics.PreferredBackBufferWidth = (int)windowSize.X;
             _graphics.PreferredBackBufferHeight = (int)windowSize.Y;
             _graphics.ApplyChanges();
 
-            block = new Block(new Vector2(3, 3));
+            block = new Block(new Vector2(1, 1));
             block.createTexture(_graphics.GraphicsDevice, pixel=> Color.Green);
 
-            mapSize = new Vector2(1000, 900);
+            mapSize = new Vector2(1700, 960);
             mapGenerator = new MapGenerator(mapSize);
             map = mapGenerator.generateTerrain();
+
+            frameCounter = new FrameCounter();
 
             camera = new Camera(windowSize, mapSize);
 
@@ -49,6 +49,7 @@ namespace Sneks {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+            fpsFont = Content.Load<SpriteFont>("fpsFont");
         }
 
         protected override void Update(GameTime gameTime) {
@@ -71,21 +72,49 @@ namespace Sneks {
 
             _spriteBatch.Begin();
 
+
             // TODO: Add your drawing code here
             foreach (Entity entity in entities.Values) {
                // _spriteBatch.Draw(entity.texture, entity.position, Color.White);
             }
 
-            for (int y = 0; y < (int)windowSize.Y; y++) {              
-                for (int x = 0; x < (int)windowSize.X; x++) {
-                    int blockPos = (y + (int)camera.y) * (int)mapSize.X + (x + (int)camera.x);
-                    switch (map[blockPos]) {
-                        case 1:
-                            _spriteBatch.Draw(block.texture, new Vector2(x, y), Color.White);
-                            break;
+            if (camera.zoom) {
+                // Zoomed in           
+                for (int y = 0; y < (int)windowSize.Y; y++) {
+                    for (int x = 0; x < (int)windowSize.X; x++) {
+                        int blockPos = (y + (int)camera.Y) * (int)mapSize.X + (x + (int)camera.X);
+                        if (!((x + windowSize.X > camera.X + windowSize.X) && (x + windowSize.X < camera.X + windowSize.X) && (y + windowSize.Y > camera.Y + windowSize.Y) && (y + windowSize.Y < camera.Y + windowSize.Y))) {
+                            switch (map[blockPos]) {
+                                case 1:
+                                    _spriteBatch.Draw(block.texture, new Vector2(x, y), Color.White);
+                                    break;
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Not zoomed in
+                for (int y = 0; y < (int)windowSize.Y; y++) {
+                    for (int x = 0; x < (int)windowSize.X; x++) {
+                        float xPos = (float)x / windowSize.X * mapSize.X;
+                        float yPos = (float)y / windowSize.Y * mapSize.Y;
+                        int blockPos = ((int)yPos) * (int)mapSize.X + ((int)xPos);
+                        switch (map[blockPos]) {
+                            case 1:
+                                _spriteBatch.Draw(block.texture, new Vector2(x, y), Color.White);
+                                break;
+                        }
                     }
                 }
             }
+
+            var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            frameCounter.Update(deltaTime);
+
+            var fps = string.Format("FPS: {0}", frameCounter.AverageFramesPerSecond);
+
+            _spriteBatch.DrawString(fpsFont, fps, new Vector2(1, 1), Color.Black);
 
             _spriteBatch.End();
 
@@ -100,5 +129,7 @@ namespace Sneks {
         private Vector2 mapSize;
         private Block block;
         private Vector2 windowSize;
+        private FrameCounter frameCounter;
+        private SpriteFont fpsFont;
     }
 }
