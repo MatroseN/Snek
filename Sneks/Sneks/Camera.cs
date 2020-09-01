@@ -50,7 +50,7 @@ namespace Sneks {
         }
         public float Y {
             get { return y; }
-            set { y = value; if (y < 0) y = 0; if (y >= 100) y = 100; }
+            set { y = value; if (y < 0) y = 0; if (y >= 200) y = 200; }
         }
         public Vector2 positionTarget {get; set;}
         public float scrollSpeed { get; set; }
