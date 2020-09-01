@@ -15,7 +15,7 @@ namespace Sneks {
             IsMouseVisible = true;
             _graphics.IsFullScreen = true;
         }
-
+        
         protected override void Initialize() {
             // TODO: Add your initialization logic here
 
