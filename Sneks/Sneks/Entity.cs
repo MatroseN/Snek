@@ -19,6 +19,10 @@ namespace Sneks {
         public Vector2 size { get; set; }
         public Vector2 position { get; set; }
         public Texture2D texture { get; set; }
+        public Vector2 velocity { get; set; }
+        public Vector2 acceleration { get; set; }
         public Guid id { get; protected set; }
+        public float collisionBoundry { get; set; }
+        public bool stable { get; set; }
     }
 }

@@ -39,8 +39,7 @@ namespace Sneks {
 
             entities = new Dictionary<Guid, Entity>();
 
-            snek = new Snek(new Vector2(32, 64), new Vector2(400, 100), entities);
-      
+            snek = new Snek(new Vector2(32, 64), new Vector2(400, 100), entities);     
 
             base.Initialize();
         }
@@ -50,6 +49,7 @@ namespace Sneks {
 
             // TODO: use this.Content to load your game content here
             fpsFont = Content.Load<SpriteFont>("fpsFont");
+            snek.texture = Content.Load<Texture2D>("Snek");
         }
 
         protected override void Update(GameTime gameTime) {
@@ -74,9 +74,6 @@ namespace Sneks {
 
 
             // TODO: Add your drawing code here
-            foreach (Entity entity in entities.Values) {
-               // _spriteBatch.Draw(entity.texture, entity.position, Color.White);
-            }
 
             if (camera.zoom) {
                 // Zoomed in           
@@ -106,6 +103,10 @@ namespace Sneks {
                         }
                     }
                 }
+            }
+
+            foreach (Entity entity in entities.Values) {
+                _spriteBatch.Draw(entity.texture, entity.position, Color.White);
             }
 
             var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
