@@ -1,63 +1,82 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Diagnostics;
 
 namespace Sneks {
-    public class Camera {
+    public class Camera : GameComponent {
+        public Camera(Game game) : base(game) {
 
-        public Camera(Vector2 windowSize, Vector2 mapSize) {
-            scrollSpeed = 400.0f;
-            x = 0.0f;
-            y = 0.0f;
-            this.mapSize = mapSize;
-            this.zoom = true;
         }
 
-        public void update(GameTime gameTime) {
-            move(gameTime);
+        #region MonoGame Pipeline
+        public override void Initialize() {
+            Position = new Vector3(0, 0, 3000.0f);
+            Zoom = 1.0f;
+
+            previousKeyboardState = Keyboard.GetState();
+            currentKeyboardState = Keyboard.GetState();
+            previousMouseState = Mouse.GetState();
+            currentMouseState = Mouse.GetState();
+
+            base.Initialize();
         }
 
-        private void move(GameTime gameTime) {
-            if (Keyboard.GetState().IsKeyDown(Keys.Left)) {
-                X -= scrollSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-            }
-            if (Keyboard.GetState().IsKeyDown(Keys.Right)) {
-                X += scrollSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+        public override void Update(GameTime gameTime) {
+            currentKeyboardState = Keyboard.GetState();
+            currentMouseState = Mouse.GetState();
+
+            // Horizontal Panning
+            if (currentKeyboardState.IsKeyDown(Keys.D)) {
+                Position = new Vector3(Position.X - 25, Position.Y, Position.Z);
             }
 
-            if (Keyboard.GetState().IsKeyDown(Keys.Up)) {
-                Y -= scrollSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (currentKeyboardState.IsKeyDown(Keys.A)) {
+                Position = new Vector3(Position.X + 25, Position.Y, Position.Z);
             }
 
-            if (Keyboard.GetState().IsKeyDown(Keys.Down)) {
-                Y += scrollSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            // Vertical Panning
+            if (currentKeyboardState.IsKeyDown(Keys.W)) {
+                Position = new Vector3(Position.X, Position.Y + 25, Position.Z);
             }
 
-            if (Keyboard.GetState().IsKeyDown(Keys.Tab)) {
-                zoom = false;
+            if (currentKeyboardState.IsKeyDown(Keys.S)) {
+                Position = new Vector3(Position.X, Position.Y - 25, Position.Z);
             }
 
-            if (Keyboard.GetState().IsKeyUp(Keys.Tab)) {
-                zoom = true;
+            // Zooming
+            if (currentKeyboardState.IsKeyDown(Keys.Q)) {
+                Position = new Vector3(Position.X, Position.Y, Position.Z + 50);
+            }
+
+            if (currentKeyboardState.IsKeyDown(Keys.E)) {
+                Position = new Vector3(Position.X, Position.Y, Position.Z - 50);
+            }
+
+            previousKeyboardState = currentKeyboardState;
+            previousMouseState = currentMouseState;
+
+            base.Update(gameTime);
+        }
+        #endregion
+        #region Camera Properties
+        public Vector3 Position { get; set; }
+        public float Zoom { get; set; }
+        #endregion
+
+        #region Input States
+        // Current and previous keyboard and mouse states
+        private KeyboardState currentKeyboardState;
+        private KeyboardState previousKeyboardState;
+        private MouseState currentMouseState;
+        private MouseState previousMouseState;
+        #endregion
+
+        #region Public Properties
+        public Matrix View {
+            get {
+                return Matrix.CreateLookAt(new Vector3(-Position.X, Position.Y, Position.Z), new Vector3(-Position.X, Position.Y, 0), Vector3.Up) * Matrix.CreateScale(Zoom);
             }
         }
+        #endregion
 
-        public float X {
-            get { return x; }
-            set {x = value; if (x < 0) x = 0; if (x + windowSize.X * 2 >= (mapSize.X / 2) - (windowSize.X)) x = (mapSize.X / 2) - (windowSize.X); } 
-        }
-        public float Y {
-            get { return y; }
-            set { y = value; if (y < 0) y = 0; if (y >= 200) y = 200; }
-        }
-        public Vector2 positionTarget {get; set;}
-        public float scrollSpeed { get; set; }
-        public Vector2 windowSize { get; set; }
-        public bool zoom { get; set; }
-        private Vector2 mapSize { get; set; }
-        private float x;
-        private float y;
     }
 }
