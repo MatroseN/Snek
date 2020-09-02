@@ -10,11 +10,36 @@ namespace Sneks {
         public Snek(Vector2 size, Vector2 position, Dictionary<Guid, Entity> entities) {
             this.size = size;
             this.position = position;
+            this.acceleration = new Vector2(0, 0);
+            this.velocity = new Vector2(0, 0);
             addToDictionary(entities);
         }
 
         public override void update(GameTime gameTime) {
             // IMPLEMENT CORRECTLY BELOW
+            float delta = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            gravity();
+            updateVelocity(delta);
+            this.position = potentialPosition(delta);
+            resetAcceleration();
+        }
+
+        private void gravity() {
+
+            this.acceleration = new Vector2(0, acceleration.Y + 35.0f);
+        }
+
+        private void updateVelocity(float delta) {
+            velocity = new Vector2(velocity.X + acceleration.X * delta, velocity.Y + acceleration.Y * delta);
+        }
+
+        private Vector2 potentialPosition(float delta) {
+            return  new Vector2(position.X + velocity.X * delta, position.Y + velocity.Y * delta);
+        }
+
+        private void resetAcceleration() {
+            this.acceleration = new Vector2(0, 0);
+            this.stable = false;
         }
 
         public bool checkOverlap() {

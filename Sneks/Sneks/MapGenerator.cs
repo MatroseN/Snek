@@ -9,7 +9,7 @@ namespace Sneks {
         }
         private void initialize() {
             map = new int[(int)size.X * (int)size.Y];
-            noiseGenerator = new NoiseGenerator((int)size.X, 8, 2.0f);
+            noiseGenerator = new NoiseGenerator((int)size.X, 8, 1.7f);
         }
 
         // Occupies map array with values by using the perlin noise. This creates a randomly generated map
@@ -20,14 +20,7 @@ namespace Sneks {
                 for (int y = 0; y < (int)size.Y; y++) {
                     if (y >= perlinNoise[x] * (int)size.Y) {
                         map[y * (int)size.X + x] = 1;
-                    } else {
-                        if ((float)y < size.Y / 3.0f) {
-                            float temp = (-8.0f * ((float)y / (size.Y / 3.0f))) - 1.0f;
-                            map[y * (int)size.X + x] = (int)temp;
-                        } else {
-                            map[y * (int)size.X + x] = 0;
-                        }
-                    }
+                    } 
                 }
             }
             return map;
