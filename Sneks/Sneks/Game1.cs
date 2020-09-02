@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 
 namespace Sneks {
     public class Game1 : Game {
@@ -40,7 +39,7 @@ namespace Sneks {
             block = new Block(new Vector2(3, 3));
             block.createTexture(_graphics.GraphicsDevice, pixel=> Color.Green);
 
-            mapSize = new Vector2(3500, 2000);
+            mapSize = new Vector2(1000, 500);
             mapGenerator = new MapGenerator(mapSize);
             map = mapGenerator.generateTerrain();
 
@@ -97,7 +96,7 @@ namespace Sneks {
             Vector3 cameraTarget = new Vector3(0.0f, 0.0f, 0.0f);
 
             // Matrix  Preperation
-            float fovAngle = MathHelper.ToRadians(20); // 45 degrees to radians
+            float fovAngle = MathHelper.ToRadians(45); // 45 degrees to radians
             float aspectRatio = GraphicsDevice.Viewport.Width / GraphicsDevice.Viewport.Height;
             float near = 0.01f; // Near clipping plane
             float far = 1500000; // Far clipping plane
@@ -197,7 +196,9 @@ namespace Sneks {
 
             frameCounter.Update(deltaTime);
 
-            var fps = string.Format("FPS: {0}", frameCounter.AverageFramesPerSecond);
+            int fpsCount = (int)Math.Round(frameCounter.AverageFramesPerSecond, 0);
+
+            var fps = string.Format("FPS: {0}", fpsCount);
 
             _spriteBatch.Begin();
 
@@ -225,7 +226,7 @@ namespace Sneks {
 
         #region Vertex Test
         #region Constants
-        private const int quadPixelSize = 6;
+        private const int quadPixelSize = 3;
         private const int quadTotalVertecies = 6;
         private const int quadVertexSizeInBytes = (sizeof(float) * 3) + 4 + (sizeof(float) * 2);
         #endregion
