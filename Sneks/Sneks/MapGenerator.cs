@@ -3,17 +3,18 @@
 namespace Sneks {
     public class MapGenerator {
 
-        public MapGenerator(Vector2 size) {
+        public MapGenerator(Vector2 size, float bias) {
             this.size = size;
+            this.bias = bias;
             initialize();
         }
         private void initialize() {
-            map = new int[(int)size.X * (int)size.Y];
-            noiseGenerator = new NoiseGenerator((int)size.X, 8, 1.7f);
         }
 
         // Occupies map array with values by using the perlin noise. This creates a randomly generated map
         public int[] generateTerrain() {
+            map = new int[(int)size.X * (int)size.Y];
+            noiseGenerator = new NoiseGenerator((int)size.X, 8, this.bias);
             float[] perlinNoise = noiseGenerator.perlinNoise1DGenerator();
 
             for (int x = 0; x < (int)size.X; x++) {
@@ -26,8 +27,10 @@ namespace Sneks {
             return map;
         }
 
-        private Vector2 size;
         private NoiseGenerator noiseGenerator;
         private int[] map;
+        
+        public float bias { get; set; }
+        public Vector2 size { get; set; }
     }
 }
