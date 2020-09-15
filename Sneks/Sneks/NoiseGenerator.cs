@@ -11,12 +11,12 @@ namespace Sneks {
             this.bias = bias;
             this.noiseSeed1D = new float[outputSize];
             this.perlinNoise1D = new float[outputSize];
-            this.random = new Random();
             noiseFill();
         }
 
         // Fills the seed array with random values between 0.0f and 1.0f
         private void noiseFill() {
+            this.random = new Random();
             for (int i = 0; i < outputSize; i++) {
                 float randomNum = (float)random.NextDouble();
                 noiseSeed1D[i] = randomNum;

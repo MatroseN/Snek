@@ -1,6 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Myra;
+using Myra.Graphics2D;
+using Myra.Graphics2D.Brushes;
+using Myra.Graphics2D.UI;
 using System;
 using System.Collections.Generic;
 
@@ -9,6 +13,7 @@ namespace Sneks {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private BasicEffect _basicEffect;
+        private Desktop _desktop;
 
         public Game1() {
             _graphics = new GraphicsDeviceManager(this);
@@ -39,8 +44,8 @@ namespace Sneks {
             block = new Block(new Vector2(3, 3));
             block.createTexture(_graphics.GraphicsDevice, pixel=> Color.Green);
 
-            mapSize = new Vector2(1000, 500);
-            mapGenerator = new MapGenerator(mapSize);
+            mapSize = new Vector2(2000, 500);
+            mapGenerator = new MapGenerator(mapSize, defaultMapBias);
             map = mapGenerator.generateTerrain();
 
             frameCounter = new FrameCounter();
@@ -82,6 +87,109 @@ namespace Sneks {
             snek.texture = Content.Load<Texture2D>("Snek");
             #endregion
 
+            #region Myra GUI
+
+            MyraEnvironment.Game = this;
+
+            var panel = new Panel();
+
+            var childPanel = new Panel {
+                Margin = new Thickness(24, 50, 1600, 800),
+                BorderThickness = new Thickness(5, 0),
+                Padding = new Thickness(5, 5, 0, 0),
+                Background = new SolidBrush("#2F363F"),
+            };
+
+            // Create grid
+            var grid = new Grid {
+                ShowGridLines = false,
+                ColumnSpacing = 8,
+                RowSpacing = 8,
+            };
+
+            // Set partitioning configuration
+            grid.ColumnsProportions.Add(new Proportion());
+            grid.ColumnsProportions.Add(new Proportion());
+            grid.RowsProportions.Add(new Proportion());
+            grid.RowsProportions.Add(new Proportion());
+
+            // Add widgets
+            var mapHeightLabel = new Label();
+            mapHeightLabel.Text = "Map height:";
+            mapHeightLabel.GridRow = 0;
+            mapHeightLabel.GridColumn = 0;
+            mapHeightLabel.Margin = new Thickness(40, 15, 0, 0);
+            grid.Widgets.Add(mapHeightLabel);
+
+            var mapHeightSpinButton = new SpinButton();
+            mapHeightSpinButton.GridRow = 0;
+            mapHeightSpinButton.GridColumn = 1;
+            mapHeightSpinButton.Value = mapSize.Y;
+            mapHeightSpinButton.Margin = new Thickness(10, 15, 0 ,0);
+            mapHeightSpinButton.ValueChanged += (s, a) => {
+                mapSize.Y = mapHeightSpinButton.Value.Value;
+            };
+            grid.Widgets.Add(mapHeightSpinButton);
+
+            var mapWidthLabel = new Label();
+            mapWidthLabel.Text = "Map width:";
+            mapWidthLabel.GridRow = 1;
+            mapWidthLabel.Margin = new Thickness(40, 15, 0, 0);
+            grid.Widgets.Add(mapWidthLabel);
+
+            var mapWidthSpinButton = new SpinButton();
+            mapWidthSpinButton.GridRow = 1;
+            mapWidthSpinButton.GridColumn = 1;
+            mapWidthSpinButton.Value = mapSize.X;
+            mapWidthSpinButton.Margin = new Thickness(10, 15, 0, 0);
+            mapWidthSpinButton.ValueChanged += (s, a) => {
+                 mapSize.X = mapWidthSpinButton.Value.Value;
+             };
+            grid.Widgets.Add(mapWidthSpinButton);
+
+            var biasLabel = new Label();
+            biasLabel.Text = "Bias:";
+            biasLabel.GridRow = 2;
+            biasLabel.Margin = new Thickness(40, 15, 0, 0);
+            grid.Widgets.Add(biasLabel);
+
+            var slider = new HorizontalSlider();
+            slider.GridColumn = 1;
+            slider.GridRow = 2;
+            slider.Width = 100;
+            slider.Margin = new Thickness(0, 15, 0, 0);
+            slider.Value = mapGenerator.bias;
+            slider.Maximum = 2.5f;
+            slider.Minimum = 0.5f;
+            slider.ValueChanged += (s, a) => {
+                mapGenerator.bias = slider.Value;
+            };
+            grid.Widgets.Add(slider);
+
+            var veryLongButton = new TextButton();
+            veryLongButton.Text = "Generate";
+            veryLongButton.GridColumn = 0;
+            veryLongButton.GridRow = 3;
+            veryLongButton.Margin = new Thickness(30, 10, 25, 25);
+            veryLongButton.Width = 90;
+            veryLongButton.Height = 50;
+            veryLongButton.OverBackground = new SolidBrush("#26ae60");
+            veryLongButton.PressedBackground = new SolidBrush("#EA7773");
+            veryLongButton.Background = new SolidBrush("#019031");
+            veryLongButton.TouchDown += (s, a) => {
+                generate = true;
+            };
+            grid.Widgets.Add(veryLongButton);
+
+            childPanel.Widgets.Add(grid);
+            panel.Widgets.Add(childPanel);
+
+            // Add it to the desktop
+            _desktop = new Desktop();
+            _desktop.Root = panel;
+
+            #endregion
+
             #region Vertex Test
             // Quad Texture
             quadTexture = block.texture;
@@ -120,7 +228,17 @@ namespace Sneks {
 
             // TODO: Add your update logic here
 
-            legacyCamera.update(gameTime);
+            // legacyCamera.update(gameTime);
+
+            if (generate) {
+                mapGenerator.size = mapSize;
+                map = mapGenerator.generateTerrain();
+                quadIWidth = (int)mapSize.X;
+                quadIHeight = (int)mapSize.Y;
+                quadITotal = 0;
+                quadGenerator.createQuads(GraphicsDevice, quadTotalVertecies, mapSize, map);
+                generate = false;
+            }
 
             foreach (Entity entity in entities.Values) {
                 entity.update(gameTime);
@@ -190,6 +308,7 @@ namespace Sneks {
 
             }
 
+            _desktop.Render();
             
             #region FPS Counter
             var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -219,6 +338,8 @@ namespace Sneks {
         private MapGenerator mapGenerator;
         private int[] map;
         private Vector2 mapSize;
+        private bool generate = false;
+        private const float defaultMapBias = 1.25f;
         private Block block;
         private Vector2 windowSize;
         private FrameCounter frameCounter;
