@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace Sneks {
     class QuadGenerator {
 
+        // Generates the quads that will be sent to the vertex buffer
         public void createQuads(GraphicsDevice graphicsDevice, int quadTotalVertecies, Vector2 mapSize, int[] map) {
             // Setup a vertex buffer
             iQuadTotal = (int)mapSize.X * (int)mapSize.Y;
