@@ -41,20 +41,24 @@ namespace Sneks {
 
 
             #region Legacy
+            // Induvidual block that gets rendered to the screen
             block = new Block(new Vector2(3, 3));
             block.createTexture(_graphics.GraphicsDevice, pixel=> Color.Green);
 
+            // Map default build settings
             mapSize = new Vector2(2000, 500);
             mapGenerator = new MapGenerator(mapSize, defaultMapBias);
             map = mapGenerator.generateTerrain();
 
             frameCounter = new FrameCounter();
 
+            // Can be deleted later
             legacyCamera = new LegacyCamera(windowSize, mapSize);
 
-
+            // Includes all game entities
             entities = new Dictionary<Guid, Entity>();
 
+            // A player that gets placed at the specified location
             snek = new Snek(new Vector2(32, 64), new Vector2(400, 100), entities);
             #endregion
 
@@ -82,6 +86,7 @@ namespace Sneks {
 
             // TODO: use this.Content to load your game content here
 
+            // Look through and refactor
             #region Legacy
             fpsFont = Content.Load<SpriteFont>("fpsFont");
             snek.texture = Content.Load<Texture2D>("Snek");
@@ -89,10 +94,13 @@ namespace Sneks {
 
             #region Myra GUI
 
+            // Map builder GUI that you can use to change the map builder parameters on the fly. Including regenerate the entire map
             MyraEnvironment.Game = this;
 
+            // Main panel that all other map builder ui elements will get added to
             var panel = new Panel();
 
+            // Creates the panel that holds all other ui elements
             var childPanel = new Panel {
                 Margin = new Thickness(24, 50, 1600, 800),
                 BorderThickness = new Thickness(5, 0),
@@ -113,7 +121,7 @@ namespace Sneks {
             grid.RowsProportions.Add(new Proportion());
             grid.RowsProportions.Add(new Proportion());
 
-            // Add widgets
+            // Adds a label for the height
             var mapHeightLabel = new Label();
             mapHeightLabel.Text = "Map height:";
             mapHeightLabel.GridRow = 0;
@@ -121,6 +129,7 @@ namespace Sneks {
             mapHeightLabel.Margin = new Thickness(40, 15, 0, 0);
             grid.Widgets.Add(mapHeightLabel);
 
+            // Lets you change the valuue for the map height
             var mapHeightSpinButton = new SpinButton();
             mapHeightSpinButton.GridRow = 0;
             mapHeightSpinButton.GridColumn = 1;
@@ -131,12 +140,14 @@ namespace Sneks {
             };
             grid.Widgets.Add(mapHeightSpinButton);
 
+            // Adds a label for the width
             var mapWidthLabel = new Label();
             mapWidthLabel.Text = "Map width:";
             mapWidthLabel.GridRow = 1;
             mapWidthLabel.Margin = new Thickness(40, 15, 0, 0);
             grid.Widgets.Add(mapWidthLabel);
 
+            // Lets you change the valuue for the map width
             var mapWidthSpinButton = new SpinButton();
             mapWidthSpinButton.GridRow = 1;
             mapWidthSpinButton.GridColumn = 1;
@@ -147,12 +158,14 @@ namespace Sneks {
              };
             grid.Widgets.Add(mapWidthSpinButton);
 
+            // Label for the bias section on the ui
             var biasLabel = new Label();
             biasLabel.Text = "Bias:";
             biasLabel.GridRow = 2;
             biasLabel.Margin = new Thickness(40, 15, 0, 0);
             grid.Widgets.Add(biasLabel);
 
+            // Slider that lets you modify the bias value for map generation. The lower the value the more "spiky" the map will be. If the value is higher the map will be flatter. Goes from 0.5f to 2.5f
             var slider = new HorizontalSlider();
             slider.GridColumn = 1;
             slider.GridRow = 2;
@@ -166,6 +179,7 @@ namespace Sneks {
             };
             grid.Widgets.Add(slider);
 
+            // TODO: Rename this button to be more reflective of the property it is modifying.
             var veryLongButton = new TextButton();
             veryLongButton.Text = "Generate";
             veryLongButton.GridColumn = 0;
@@ -251,6 +265,8 @@ namespace Sneks {
             GraphicsDevice.Clear(Color.CornflowerBlue);
             _basicEffect.View = camera.View;
 
+            // TODO: Refactor like crazy
+            // Go through and delete what isnt needed anymore
             #region Legacy
             if (isLegacy) {
 
@@ -357,6 +373,7 @@ namespace Sneks {
         #region Quad Data
         private int quadIWidth;
         private int quadIHeight;
+        // check usability
         private int quadITotal;
         #endregion
 
