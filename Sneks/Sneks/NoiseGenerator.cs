@@ -36,7 +36,7 @@ namespace Sneks {
                     int pitch = outputSize >> o;
                     int sample1 = (x / pitch) * pitch;
                     int sample2 = (sample1 + pitch) % outputSize;
-                    float blend = (float)(x - sample1) / (float)pitch;
+                    float blend = (float)(x - sample1) / (float)pitch; // How far into the pitch we are. Value between 1.0 and 0.0
                     float sample = (1.0f - blend) * noiseSeed1D[sample1] + blend * noiseSeed1D[sample2];
                     scaleAcc += scale;
                     noise += sample * scale;
